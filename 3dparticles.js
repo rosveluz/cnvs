@@ -3,7 +3,17 @@ scene.add(particleGroup);
 
 const particles = [];
 
-// Create a radial gradient texture for the glow
+let twirlIntensity = 0.02; // Intensity of the twirl, adjust as needed
+let twirlSpeed = 0.02; // Speed of the twirl, adjust as needed
+
+function setTwirlIntensity(intensity) {
+  twirlIntensity = intensity;
+}
+
+function setTwirlSpeed(speed) {
+  twirlSpeed = speed;
+}
+
 function createGlowTexture(color) {
   const canvas = document.createElement('canvas');
   canvas.width = 128;
@@ -17,7 +27,6 @@ function createGlowTexture(color) {
   return new THREE.CanvasTexture(canvas);
 }
 
-// Function to create particles
 function createParticle() {
   const angle = Math.random() * Math.PI * 2;
   const radius = outerRadius + 10;
@@ -35,20 +44,21 @@ function createParticle() {
   particleMesh.position.copy(position);
   particleGroup.add(particleMesh);
 
-  // Glow effect
-  const glowGeometry = new THREE.PlaneGeometry(8, 8);
-  const glowTexture = createGlowTexture(color); // Create texture using particle's color
+  const glowGeometry = new THREE.PlaneGeometry(12, 12);
+  const glowTexture = createGlowTexture(color);
   const glowMaterial = new THREE.MeshBasicMaterial({
     map: glowTexture,
     transparent: true,
     blending: THREE.AdditiveBlending,
     depthWrite: false,
-    side: THREE.DoubleSide, // Render both sides of the mesh
+    side: THREE.DoubleSide,
   });
   const glowMesh = new THREE.Mesh(glowGeometry, glowMaterial);
   particleMesh.add(glowMesh);
 
-  particles.push({ mesh: particleMesh, scale: 1 });
+  const twirlDirection = Math.random() < 0.5 ? 1 : -1; // Random twirl direction
+
+  particles.push({ mesh: particleMesh, scale: 1, twirlDirection }); // Include twirlDirection
 }
 
 // Function to animate particles
@@ -58,6 +68,18 @@ function animateParticles() {
     let directionY = (0 - particle.mesh.position.y) * 0.01;
     particle.mesh.position.x += directionX;
     particle.mesh.position.y += directionY;
+
+    // Convert to polar coordinates (radius and angle)
+    const radius = Math.sqrt(particle.mesh.position.x ** 2 + particle.mesh.position.y ** 2);
+    let angle = Math.atan2(particle.mesh.position.y, particle.mesh.position.x);
+
+    // Twirl motion using twirlDirection
+    angle += twirlSpeed * particle.twirlDirection; // Adjust the sign based on twirlDirection
+
+    // Convert back to Cartesian coordinates
+    particle.mesh.position.x = radius * Math.cos(angle);
+    particle.mesh.position.y = radius * Math.sin(angle);
+
     particle.mesh.position.z -= 0.05;
 
     // Check if particle's z-index is between -2 and -72
@@ -76,16 +98,14 @@ function animateParticles() {
   });
 }
 
-
-
 let frameCount = 0;
 
 function animate() {
-  if (frameCount % 60 === 0 && particles.length < 10000) { // Create new particle every 10 frames
+  if (frameCount % 64 === 0 && particles.length < 10000) {
     createParticle();
   }
 
-  frameCount++; // Increment frameCount
+  frameCount++;
   animateParticles();
   renderer.render(scene, camera);
   requestAnimationFrame(animate);
