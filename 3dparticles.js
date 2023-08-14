@@ -32,7 +32,7 @@ function createParticle() {
   const radius = outerRadius + 10;
   const position = new THREE.Vector3(radius * Math.cos(angle), radius * Math.sin(angle), Math.random() * 12 + 6);
 
-  const geometry = new THREE.SphereGeometry(1, 32, 32);
+  const geometry = new THREE.SphereGeometry(.1, 32, 32);
   const hue = Math.random();
   const saturation = Math.random();
   const lightness = 0.6 + Math.random() * 0.4;
@@ -44,7 +44,7 @@ function createParticle() {
   particleMesh.position.copy(position);
   particleGroup.add(particleMesh);
 
-  const glowGeometry = new THREE.PlaneGeometry(12, 12);
+  const glowGeometry = new THREE.PlaneGeometry(4, 4);
   const glowTexture = createGlowTexture(color);
   const glowMaterial = new THREE.MeshBasicMaterial({
     map: glowTexture,
