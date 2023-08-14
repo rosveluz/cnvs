@@ -1,10 +1,57 @@
-body {
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+
+body, html {
+    height: 100%; /* Add this to make sure the body and html take the full height */
     margin: 0;
     overflow: hidden;
 }
+
 canvas {
     display: block;
     background-color: black;
 }
 
+#main-container {
+    position: absolute;
+    z-index: 1000; /* Make sure it's on top */
+    height: 100%; /* Make sure it takes the full height */
+    display: flex; /* Add this to enable flex on this container */
+    flex-direction: column; /* Stack the children vertically */
+}
 
+#sub-container {
+    z-index: 1000;
+    flex: 1; /* Allow it to grow and take up available space */
+    display: flex; /* Add this to enable flex on this container */
+    flex-direction: column; /* Stack the children vertically */
+    justify-content: space-between; /* Add space between the children, pushing them to start and end */
+}
+
+header {
+    width: 100vw;
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    padding: 16px;
+}
+
+#instagram {
+    display: flex;
+    justify-content: flex-end; /* Correct the property to flex-end */
+    padding: 16px;
+}
+
+#instagram img {
+    height: 60px;
+    width: auto;
+}
+
+img#logo {
+    height: 120px;
+    width: auto;
+}
