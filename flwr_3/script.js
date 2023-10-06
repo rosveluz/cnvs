@@ -7,11 +7,16 @@ colorDisplay.style.color = 'white';
 
 let offscreenCanvas = document.createElement('canvas');
 
-Promise.all([
-    faceapi.nets.tinyFaceDetector.loadFromUri('./models'),
-    faceapi.nets.faceLandmark68Net.loadFromUri('./models'),
-    faceapi.nets.faceExpressionNet.loadFromUri('./models')
-]).then(startWebcam);
+let colorsArray = ['red', 'green', 'blue', 'yellow', 'purple', 'orange', 'pink'];
+let colorIndex = 0;
+
+function updateColorName() {
+    let currentColor = colorsArray[colorIndex];
+    document.getElementById('colorDetection').textContent = currentColor;
+    colorIndex = (colorIndex + 1) % colorsArray.length;
+}
+
+setInterval(updateColorName, 2000);  // Change every 2 seconds
 
 function startWebcam() {
     navigator.mediaDevices
@@ -44,7 +49,6 @@ function getColorName(r, g, b) {
     return 'Unknown';
 }
 
-// Register colors only once
 tracking.ColorTracker.registerColor('red', function(r, g, b) {
     return r > (g + b) && r > 50;
 });
@@ -55,6 +59,12 @@ tracking.ColorTracker.registerColor('blue', function(r, g, b) {
     return b > (r + g) && b > 50;
 });
 let tracker = new tracking.ColorTracker(['red', 'green', 'blue']);
+
+Promise.all([
+    faceapi.nets.tinyFaceDetector.loadFromUri('./models'),
+    faceapi.nets.faceLandmark68Net.loadFromUri('./models'),
+    faceapi.nets.faceExpressionNet.loadFromUri('./models')
+]).then(startWebcam);
 
 video.addEventListener('play', () => {
     const canvas = faceapi.createCanvasFromMedia(video);
@@ -79,7 +89,7 @@ video.addEventListener('play', () => {
 
         const scaleFactor = video.offsetWidth / video.videoWidth;
         const resizedDetections = faceapi.resizeResults(detections, { width: video.offsetWidth, height: video.offsetHeight });
-        
+
         canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
         faceapi.draw.drawDetections(canvas, resizedDetections);
         faceapi.draw.drawFaceLandmarks(canvas, resizedDetections, landmarkDrawOptions);
@@ -97,9 +107,9 @@ video.addEventListener('play', () => {
                 width: box.width,
                 height: heightBelowFace
             };
-            
+
             drawRegionOnCanvas(canvas.getContext('2d'), clothingRegion);
-            
+
             let dominantColorRGB = extractDominantColor(video, clothingRegion);
             let colorName = getColorName(dominantColorRGB.r, dominantColorRGB.g, dominantColorRGB.b);
             colorDisplay.textContent = colorName;
@@ -111,14 +121,12 @@ function extractDominantColor(video, region) {
     if (!video.videoWidth || !video.videoHeight || region.width <= 0 || region.height <= 0) {
         return { r: 0, g: 0, b: 0 };
     }
-    
+
     let ctx = offscreenCanvas.getContext('2d', { willReadFrequently: true });
-    
-    // Only draw the region of interest to the offscreenCanvas
     ctx.drawImage(video, region.x, region.y, region.width, region.height, 0, 0, offscreenCanvas.width, offscreenCanvas.height);
 
     let dominantColorRGB = { r: 0, g: 0, b: 0 };
-    
+
     tracker.on('track', function(event) {
         let dominantColor;
         let dominantSize = 0;
