@@ -4,32 +4,46 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bad Flowers [Coconut Studios x &lt;cnvs&gt;] </title>
+    
     <link rel="icon" href="img/SVG/cnvs-logomark-blk.svg" type="image/png">
-
-    <script defer src="./face-api.js-master/dist/face-api.min.js"></script>
-    <script defer src="./tracking.js-master/build/tracking-min.js"></script>
-    <script defer src="./color-namer-master/dist/color-namer.js"></script>
-    <script defer src="./script.js"></script>
-    <link rel="stylesheet" href="flwr-3.css">
-
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/simple-statistics@7.7.5/dist/simple-statistics.min.js"></script>
+    <script defer src="/face-api.js-master/dist/face-api.min.js"></script>
+    <!-- Make sure to declare script.js as a module because it's importing from utils.js -->
+    <script type="module" src="script.js"></script>
+    <script type="module" src="flower.js"></script>
 </head>
+    
 <body>
     <section class="main-container">
         <div>
-            <img class="logo-1" src="..\img\SVG\cnvs-logomark-wht.svg" alt="<cnvs> logo">
+            <img class="logo-1" src="img/cnvs-logomark-wht.svg" alt="<cnvs> logo">
         </div>
 
         <div class="canvas-container">
 
             <div id="video-container">
                 <div id="faceExpression"></div>
-                <video id="video" autoplay muted></video>
+
+                <div id="face-container">
+                    <canvas id="face-detection"></canvas>
+                    <canvas id="color-detection"></canvas>
+                    <video id="video" width="640" height="480" autoplay muted></video>
+                </div>
+
                 <div id="colorDetection"></div>
             </div>
            
-            <canvas id="myCanvas"></canvas>
+            <canvas id="myCanvas" width="400" height="400"></canvas>
 
-            <button id="printButton">Send Generated Flower</button>
+            <section class="button-container">
+
+                <button id="counterButton"><div id="button-text">Capture Timer</div><div id="timer"></div></button>
+                <button id="printButton">Send Generated Flower</button>
+
+            </section>
+
+           
 
         </div>
 

@@ -1,0 +1,202 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    overflow: hidden;
+}
+
+.main-container {
+    background-color: rgb(0, 0, 0);
+    transition: background-color 0.5s ease-in-out;
+    height: 100vh;
+    padding: 32px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    & .logo-1 {
+        width: 90px;
+        height: auto;
+    }
+
+    & .logo-2 {
+        width: 110px;
+        height: auto;
+        border-radius: 60px;
+    }
+
+    & :nth-child(2) {
+        align-self: center;
+    }
+}
+
+.logo-2 {
+    float: right;
+}
+
+.canvas-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    gap: 16px;
+}
+
+#myCanvas {
+    width: 400px;  /* This will take 100% width of its parent */
+    height: 400px;   /* Reset the height */
+ /* This will make it a square */
+    position: relative;  /* For potential child elements to be positioned inside of it */
+    border-radius: 50%;
+    /* background-color: rgba(145, 145, 145, 0.067); */
+}
+
+#video-container {
+    position: relative; /* Relative positioning for the container */
+    display: flex;
+    gap: 32px;
+    overflow: hidden; /* Hide any overflowing content */
+}
+
+#face-container {
+    position: relative;
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    background-color: red;
+    z-index: 1;
+}
+
+#face-detection {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 640px;
+    height: 480px;
+    border-radius: 50%;
+    z-index: 3;  /* Ensure the face detection canvas is above the video */
+}
+
+#color-detection {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 640px;
+    height: 480px;
+    border-radius: 50%;
+    z-index: 2;  /* Ensure the face detection canvas is above the video */
+}
+
+#video {
+    width: 640px;
+    height: 480px;
+    border-radius: 50%;
+    background-color: red;
+    z-index: 1;
+}
+
+#face-container > #video, 
+#face-container > #face-detection,
+#face-container > #color-detection {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;  /* This will make it take the full width of the container */
+    height: 100%; /* This will make it take the full height of the container */
+    transform: translate(-50%, -50%);
+    object-fit: cover;  /* This will ensure the video covers the whole area without distortion */
+    border-radius: 50%;  /* To make sure the video and canvas also have rounded corners to fit in the circle container */
+}
+
+#faceExpression {
+    width: 80px;
+    align-self: center;
+    text-align: center;
+    color: white;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 1.2rem;
+}
+
+#colorDetection {
+    width: 80px;
+    align-self: center ;
+    text-align: center;
+    color: white;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 1.2rem;
+}
+
+
+.button-container > button {
+    margin: 0 auto;
+    padding: 12px 8px;
+    font-size: .8rem;
+    font-weight: 600;
+    width: 180px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-radius: 8px;
+}
+
+#counterButton {
+    background: none;
+    color: white;
+    border: 2px solid white;
+    
+}
+
+@media (max-width: 760px) {
+
+    .main-container {
+        padding: 12px;
+    }
+
+    .canvas-container {
+            width: 100%; 
+            max-width: 500px;
+            margin: 0 auto;
+    }
+
+    .main-container .logo-1 {
+        width: 50px;
+        height: auto;
+    }
+    .main-container .logo-2 {
+        width: 65px;
+        height: auto;
+    }
+
+    #face-container {
+        width: 80px;
+        height: 80px;
+    }
+    
+    #face-detection {
+        width: 480px;
+        height: 360px;
+    }
+
+    #color-detection {
+        width: 480px;
+        height: 360px;
+    }
+    
+    #video {
+        width: 480px;
+        height: 360px;
+    }
+
+    #myCanvas {
+        width: 300px;
+        height: 300px;
+    }
+
+    #printButton {
+        padding: 8px 12px;
+    }
+}

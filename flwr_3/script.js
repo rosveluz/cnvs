@@ -1,158 +1,96 @@
-const video = document.getElementById("video");
-const faceExpressionDisplay = document.getElementById('faceExpression');
-const colorDisplay = document.getElementById('colorDetection');
+/* script.js */
+import { startFlowerAnimation } from './flower.js';
 
-faceExpressionDisplay.style.color = 'white';
-colorDisplay.style.color = 'white';
+const video = document.getElementById('video');
+import { getAverageColor, rgbToColorName, rgbToLab } from './utils.js';
 
-let offscreenCanvas = document.createElement('canvas');
-
-let colorsArray = ['red', 'green', 'blue', 'yellow', 'purple', 'orange', 'pink'];
-let colorIndex = 0;
-
-function updateColorName() {
-    let currentColor = colorsArray[colorIndex];
-    document.getElementById('colorDetection').textContent = currentColor;
-    colorIndex = (colorIndex + 1) % colorsArray.length;
-}
-
-setInterval(updateColorName, 2000);  // Change every 2 seconds
-
-function startWebcam() {
-    navigator.mediaDevices
-    .getUserMedia({
-        video: {
-            width: { exact: 160 },
-        },
-        audio: false,
-    })
-    .then((stream) => {
-        video.srcObject = stream;
-    })
-    .catch((error) => {
-        console.error(error);
-    });
-}
-
-function drawRegionOnCanvas(context, region) {
-    context.strokeStyle = "yellow";
-    context.lineWidth = 1;
-    context.strokeRect(region.x, region.y, region.width, region.height);
-}
-
-function getColorName(r, g, b) {
-    let colorNamer = window.namer || window.colorNamer;
-    if (colorNamer) {
-        let colors = colorNamer(`rgb(${r},${g},${b})`);
-        return colors.roygbiv[0].name;
-    }
-    return 'Unknown';
-}
-
-tracking.ColorTracker.registerColor('red', function(r, g, b) {
-    return r > (g + b) && r > 50;
-});
-tracking.ColorTracker.registerColor('green', function(r, g, b) {
-    return g > (r + b) && g > 50;
-});
-tracking.ColorTracker.registerColor('blue', function(r, g, b) {
-    return b > (r + g) && b > 50;
-});
-let tracker = new tracking.ColorTracker(['red', 'green', 'blue']);
+let detectedExpression = 'neutral';
+let detectionInterval;
 
 Promise.all([
-    faceapi.nets.tinyFaceDetector.loadFromUri('./models'),
-    faceapi.nets.faceLandmark68Net.loadFromUri('./models'),
-    faceapi.nets.faceExpressionNet.loadFromUri('./models')
-]).then(startWebcam);
+  faceapi.nets.tinyFaceDetector.loadFromUri('/models'),
+  faceapi.nets.faceLandmark68Net.loadFromUri('/models'),
+  faceapi.nets.faceRecognitionNet.loadFromUri('/models'),
+  faceapi.nets.faceExpressionNet.loadFromUri('/models')
+]).then(startVideo);
+
+function startVideo() {
+    try {
+        navigator.mediaDevices.getUserMedia({ video: {} })
+            .then(stream => {
+                video.srcObject = stream;
+                video.play();
+            })
+            .catch(err => {
+                console.error("Error in getUserMedia:", err);
+                stopVideoStream(video);
+            });
+    } catch (err) {
+        console.error("Error in startVideo function:", err);
+    }
+}
+
+function stopVideoStream(videoElem) {
+    let tracks = videoElem.srcObject.getTracks();
+    tracks.forEach(track => track.stop());
+    videoElem.srcObject = null;
+}
 
 video.addEventListener('play', () => {
-    const canvas = faceapi.createCanvasFromMedia(video);
-    canvas.width = video.offsetWidth;
-    canvas.height = video.offsetHeight;
-    offscreenCanvas.width = video.videoWidth;
-    offscreenCanvas.height = video.videoHeight;
-
-    const videoContainer = document.getElementById('video-container');
-    videoContainer.append(canvas);
-
-    const landmarkDrawOptions = {
-        lineWidth: .2,
-        drawLines: true,
-        color: 'white'
-    };
-
-    setInterval(async () => {
-        const detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions())
-        .withFaceLandmarks()
-        .withFaceExpressions();
-
-        const scaleFactor = video.offsetWidth / video.videoWidth;
-        const resizedDetections = faceapi.resizeResults(detections, { width: video.offsetWidth, height: video.offsetHeight });
-
-        canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
+    console.log("Video is playing");
+    const canvas = document.getElementById('face-detection');
+    const displaySize = { width: video.width, height: video.height };
+    faceapi.matchDimensions(canvas, displaySize);
+    faceapi.matchDimensions(document.getElementById('color-detection'), displaySize);
+    
+    const faceExpressionElement = document.getElementById('faceExpression');
+    
+    detectionInterval = setInterval(async () => {
+        const detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceExpressions();
+        const resizedDetections = faceapi.resizeResults(detections, displaySize);
+        canvas.getContext('2d', { willReadFrequently: true }).clearRect(0, 0, canvas.width, canvas.height);
+        
         faceapi.draw.drawDetections(canvas, resizedDetections);
-        faceapi.draw.drawFaceLandmarks(canvas, resizedDetections, landmarkDrawOptions);
+        faceapi.draw.drawFaceLandmarks(canvas, resizedDetections);
+        
+        if (resizedDetections[0]) {
+            const faceBox = resizedDetections[0].detection.box;
 
-        for (let detection of detections) {
-            let maxExpressionValue = Math.max(...Object.values(detection.expressions));
-            let dominantExpression = Object.keys(detection.expressions).find(expression => detection.expressions[expression] === maxExpressionValue);
-            faceExpressionDisplay.textContent = dominantExpression;
+            if (resizedDetections[0] && resizedDetections[0].expressions) {
+                const emotion = Object.keys(resizedDetections[0].expressions).reduce((a, b) => 
+                    resizedDetections[0].expressions[a] > resizedDetections[0].expressions[b] ? a : b
+                );
+                faceExpressionElement.innerText = emotion;
+                detectedExpression = emotion;
+            }
 
-            let box = detection.detection.box;
-            let heightBelowFace = box.height * 0.5;
-            let clothingRegion = {
-                x: box.x,
-                y: box.y + box.height * 1.75,
-                width: box.width,
-                height: heightBelowFace
+            const colorRegion = {
+                x: faceBox.x / 1.5,
+                y: faceBox.y + faceBox.height,
+                width: faceBox.width * 2,
+                height: faceBox.height * 1.2
             };
 
-            drawRegionOnCanvas(canvas.getContext('2d'), clothingRegion);
+            const avgColorRgb = getAverageColor(video, colorRegion);
+            
+            if (detectedExpression !== 'neutral') {
+                startFlowerAnimation(avgColorRgb, detectedExpression);
+            }
 
-            let dominantColorRGB = extractDominantColor(video, clothingRegion);
-            let colorName = getColorName(dominantColorRGB.r, dominantColorRGB.g, dominantColorRGB.b);
-            colorDisplay.textContent = colorName;
+            const avgColorName = rgbToColorName(...avgColorRgb.split('(')[1].split(')')[0].split(',').map(val => +val.trim()));
+            document.getElementById('colorDetection').innerText = `${avgColorName}`;
+
+            const colorContext = document.getElementById('color-detection').getContext('2d', { willReadFrequently: true });
+            colorContext.strokeStyle = 'yellow'; 
+            colorContext.strokeRect(colorRegion.x, colorRegion.y, colorRegion.width, colorRegion.height);
         }
     }, 500);
 });
 
-function extractDominantColor(video, region) {
-    if (!video.videoWidth || !video.videoHeight || region.width <= 0 || region.height <= 0) {
-        return { r: 0, g: 0, b: 0 };
-    }
+video.addEventListener('ended', () => {
+    clearInterval(detectionInterval);
+});
 
-    let ctx = offscreenCanvas.getContext('2d', { willReadFrequently: true });
-    ctx.drawImage(video, region.x, region.y, region.width, region.height, 0, 0, offscreenCanvas.width, offscreenCanvas.height);
-
-    let dominantColorRGB = { r: 0, g: 0, b: 0 };
-
-    tracker.on('track', function(event) {
-        let dominantColor;
-        let dominantSize = 0;
-        event.data.forEach(function(rect) {
-            let currentSize = rect.width * rect.height;
-            if (currentSize > dominantSize) {
-                dominantSize = currentSize;
-                dominantColor = rect.color;
-            }
-        });
-        if (dominantColor) {
-            switch (dominantColor) {
-                case 'red':
-                    dominantColorRGB = { r: 255, g: 0, b: 0 };
-                    break;
-                case 'green':
-                    dominantColorRGB = { r: 0, g: 255, b: 0 };
-                    break;
-                case 'blue':
-                    dominantColorRGB = { r: 0, g: 0, b: 255 };
-                    break;
-            }
-        }
-    });
-
-    tracking.track(offscreenCanvas, tracker, { region: [0, 0, offscreenCanvas.width, offscreenCanvas.height] });
-
-    return dominantColorRGB;
-}
+window.addEventListener('beforeunload', function() {
+    clearInterval(detectionInterval);
+});
