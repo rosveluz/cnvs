@@ -11,10 +11,10 @@
     <script src="https://cdn.jsdelivr.net/npm/simple-statistics@7.7.5/dist/simple-statistics.min.js"></script>
     <script defer src="./face-api.js-master/dist/face-api.min.js"></script>
     <!-- Make sure to declare script.js as a module because it's importing from utils.js -->
-    
     <script type="module" src="./script.js"></script>
     <script type="module" src="./flower.js"></script>
     <script type="module" src="./capture.js"></script>
+    <script type="module" src="./send.js"></script>
 </head>
     
 <body>
@@ -39,14 +39,27 @@
            
             <canvas id="myCanvas" width="400" height="400"></canvas>
 
+            <!-- Capture Button -->
             <section class="button-container">
-
                 <button id="counterButton"><div id="button-text">Capture Timer</div><div id="timer"></div></button>
-                <button id="printButton">Send Generated Flower</button>
-
             </section>
 
-           
+            <!-- Modal Popup -->
+            <div id="imageModal" class="modal">
+                <div class="modal-content">
+                    <div id="captured-image">
+                        <!-- Placeholder for captured image. Image will be added here dynamically -->
+                        <img id="modalImage" src="" alt="Captured Flower Image">
+                    </div>
+                    <!-- Email form -->
+                    <form id="emailForm">
+                        <label for="emailAddress">Enter your email to receive the image:</label>
+                        <input type="email" id="emailAddress" name="email" required placeholder="Your email address">
+                        <!-- <button type="submit" id="submitEmail">Send Image</button> -->
+                    </form>
+                    <button type="button" id="printButton">Send Generated Flower</button>
+                </div>
+            </div>
 
         </div>
 
@@ -59,8 +72,7 @@
         document.addEventListener('click', function() {
           console.log('Document was clicked');
         });
-      </script>
-      
+    </script>
 
 </body>
 </html>
