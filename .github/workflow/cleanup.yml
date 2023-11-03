@@ -1,0 +1,26 @@
+name: Cleanup Unused Files
+
+on:
+  schedule:
+    - cron: "*/40 * * * *"
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Cleanup
+      run: |
+        # Add your cleanup script or Git commands here
+        # For example, to remove untracked files:
+        git clean -f -d
+
+    - name: Commit and push changes
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git commit -am "Cleanup unused files"
+        git push
