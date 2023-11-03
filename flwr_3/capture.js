@@ -1,7 +1,5 @@
 /* capture.js */
 
-// capture.js
-
 const modal = document.getElementById("imageModal");
 const modalImage = document.getElementById("modalImage");
 
