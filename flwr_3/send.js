@@ -1,3 +1,8 @@
+/* send.js file */
+
+// Import initialized instances
+import { firestore, storage } from './firebaseInit.js';  // Adjust the path accordingly
+
 // Firebase imports
 import { ref, uploadString, getDownloadURL } from 'firebase/storage';
 import { addDoc, collection } from 'firebase/firestore';
