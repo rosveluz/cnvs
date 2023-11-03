@@ -7,13 +7,14 @@
     
     <link rel="icon" href="img/SVG/cnvs-logomark-blk.svg" type="image/png">
     <link rel="stylesheet" href="style.css">
-    
+
     <script src="https://cdn.jsdelivr.net/npm/simple-statistics@7.7.5/dist/simple-statistics.min.js"></script>
     <script defer src="./face-api.js-master/dist/face-api.min.js"></script>
     <!-- Make sure to declare script.js as a module because it's importing from utils.js -->
     <script type="module" src="./script.js"></script>
     <script type="module" src="./flower.js"></script>
     <script type="module" src="./capture.js"></script>
+    <script type="module" src="./send.js"></script>
 </head>
     
 <body>
@@ -66,6 +67,13 @@
             <img class="logo-2" src="img/coconut-studios_logo.jpg" alt="Coconut Studios Logo">
         </div>
     </section>
+
+    <script>
+        document.addEventListener('click', function() {
+          console.log('Document was clicked');
+        });
+      </script>
+      
 
 </body>
 </html>

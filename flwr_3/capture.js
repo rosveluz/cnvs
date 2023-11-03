@@ -1,10 +1,12 @@
+/* capture.js */
+
 // capture.js
 
 const modal = document.getElementById("imageModal");
 const modalImage = document.getElementById("modalImage");
 
 // Part 1: Capture the canvas and background
-function captureCanvasAndBackground() {
+async function captureCanvasAndBackground() {
     const finalCanvas = document.createElement('canvas');
     finalCanvas.width = 1080;
     finalCanvas.height = 1080;
