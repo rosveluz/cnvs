@@ -4,7 +4,7 @@ const modal = document.getElementById("imageModal");
 const modalImage = document.getElementById("modalImage");
 
 // Part 1: Capture the canvas and background
-export async function captureCanvasAndBackground() {
+async function captureCanvasAndBackground() {
     const finalCanvas = document.createElement('canvas');
     finalCanvas.width = 1080;
     finalCanvas.height = 1080;
@@ -21,14 +21,10 @@ export async function captureCanvasAndBackground() {
 
     // Save the result canvas as an image
     const finalImage = finalCanvas.toDataURL("image/png");
-
-    const imageData = await captureCanvasAndBackground();
     
     // Set the captured image source to the modal and show the modal
     modalImage.src = finalImage;
     modal.style.display = "flex";  // This line will trigger the modal to show up
-
-    return finalImage;
 }
 
 // Part 2: Set up the countdown timer and capture functionality
