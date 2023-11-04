@@ -1,8 +1,5 @@
-<<<<<<< HEAD
 // send.js
 
-=======
->>>>>>> parent of 3012d34 (Test Config V5)
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
