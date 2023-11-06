@@ -1,14 +1,35 @@
+// flower.js
+
+// A function to call when you want to wait for the expression to stabilize
+function debounce(func, wait, immediate) {
+    var timeout;
+    return function() {
+        var context = this, args = arguments;
+        var later = function() {
+            timeout = null;
+            if (!immediate) func.apply(context, args);
+        };
+        var callNow = immediate && !timeout;
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+        if (callNow) func.apply(context, args);
+    };
+};
+
+// Use it to wrap your expression change handler
+const debouncedStartFlowerAnimation = debounce((avgColorRgb, detectedExpression) => {
+    startFlowerAnimation(avgColorRgb, detectedExpression);
+}, 250); // Wait for 250ms of no expression change before triggering the animation
+
 const canvas = document.getElementById('myCanvas');
 const ctx = canvas.getContext('2d');
 const GLOBAL_DELAY = 500;  // Delay in milliseconds (e.g., 500ms or 0.5 seconds)
 
 import { getAverageColor } from './utils.js';
 
-
 let previousExpression = null;
-
-canvas.width = canvas.width;
-canvas.height = canvas.height;
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
 
 let avgColor;
 let animationStarted = false;
@@ -17,38 +38,51 @@ let number = 0;
 let angle = 0;
 
 function getPetalCount(expression) {
+    // Ensure that expression is a string and trim it
+    if (typeof expression !== 'string') {
+        throw new Error('Expression must be a string.');
+    }
+    expression = expression.trim().toLowerCase();
+
     console.log("Expression received:", expression);
+
     switch (expression) {
         case 'sad':
         case 'angry':
         case 'disgusted':
-            return 4;
+            return Math.floor(Math.random() * (9 - 4 + 1)) + 4; // Random between 4 and 9
         case 'neutral':
-            return 7;
+            return Math.floor(Math.random() * (16 - 10 + 1)) + 10; // Random between 10 and 16
         case 'happy':
         case 'surprised':
-            return Math.floor(Math.random() * 17) + 8;
+            return Math.floor(Math.random() * (32 - 17 + 1)) + 17; // Random between 17 and 32
         default:
-            return 8;
+            console.log("Expression not recognized, defaulting to 8.");
+            return 12;
     }
 }
 
 function getLineWidth(expression) {
+    if (typeof expression !== 'string') {
+        throw new Error('Expression must be a string.');
+    }
+    expression = expression.trim().toLowerCase();
+
     switch (expression) {
         case 'sad':
         case 'angry':
         case 'disgusted':
-            return 32;
+            return Math.floor(Math.random() * (32 - 17 + 1)) + 17; // Random between 17 and 32
         case 'neutral':
-            return 16;
+            return Math.floor(Math.random() * (16 - 10 + 1)) + 10; // Random between 10 and 16
         case 'happy':
         case 'surprised':
-            return 4;
+            return Math.floor(Math.random() * (9 - 4 + 1)) + 4; // Random between 4 and 9
         default:
-            return 8; // Default line width (or whatever value you think is best)
+            console.log("Expression not recognized, defaulting to 8.");
+            return 8; // Default line width remains the same
     }
 }
-
 
 function getInverseColor(color) {
     let rgb = color.match(/\d+/g);
@@ -91,23 +125,28 @@ let animationDelay = 50;
 let lastTime = 0;
 
 function animate(currentTime) {
+    // Check for the start condition of the animation
     if (!animationStarted) {
         return;
     }
 
+    // Calculate the elapsed time to manage frame rate
     if (!lastTime) {
         lastTime = currentTime;
     }
 
     if (currentTime - lastTime >= animationDelay) {
         if (number < maxPetals) {
+            // Calculate strokeColor based on avgColor
             const harmonyColors = computeQuadraticHarmony(avgColor);
-            const strokeColor = harmonyColors.harmony2; // Using harmony2 as an example for the stroke
+            const strokeColor = harmonyColors.harmony2;
             angle = drawPetal(ctx, canvas, avgColor, strokeColor, angle, maxPetals, previousExpression);
             number++;
             lastTime = currentTime;
         } else {
+            // Reset animation once all petals have been drawn
             animationStarted = false;
+            previousExpression = null; // Reset the previousExpression to allow new animations
             return;
         }
     }
@@ -115,45 +154,27 @@ function animate(currentTime) {
     requestAnimationFrame(animate);
 }
 
-
 export function startFlowerAnimation(avgColorRgb, expression) {
-    console.log("About to start flower animation with expression:", expression);
-    
-    setTimeout(() => {
-        avgColor = avgColorRgb;
-
-        if (expression === previousExpression) {
-            return;
-        }
-
-        if (!animationStarted) {
+    // Only attempt to start a new animation if the expression has changed
+    if (expression !== previousExpression) {
+        setTimeout(() => {
+            previousExpression = expression;
+            avgColor = avgColorRgb;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             number = 0;
             maxPetals = getPetalCount(expression);
-
-            console.log("Number of petals to draw:", maxPetals);
-
             let angularSpacing = (2 * Math.PI) / maxPetals;
             let offsetAngle = (maxPetals % 2 === 1) ? angularSpacing / 2 : 0;
-
             angle = offsetAngle;
             lastTime = 0;
-            animationStarted = false;
-            number = 0;
-            angle = 0;
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
             animationStarted = true;
             requestAnimationFrame(animate);
-        }
-
-        previousExpression = expression;
-
-        // Call updateContainerColor right after avgColor has been updated.
-        updateContainerColor();
-    }, GLOBAL_DELAY);
+            updateContainerColor();
+        }, GLOBAL_DELAY);
+    } else {
+        console.log("Expression has not changed, no need to redraw.");
+    }
 }
-
 
 // Placeholder for rgbToLab function
 function rgbToLab(r, g, b) {
@@ -191,5 +212,6 @@ function updateContainerColor() {
     mainContainer.style.backgroundColor = harmony.harmony1; // Using harmony1 as an example
 }
 
-// Whenever avgColor changes, you can call the updateContainerColor function
-// updateContainerColor();
+
+// Make sure to replace any direct calls to startFlowerAnimation with debouncedStartFlowerAnimation in your code.
+// debouncedStartFlowerAnimation(avgColor, expression);
