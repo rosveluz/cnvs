@@ -289,6 +289,32 @@ body {
     padding: 20px;
     border: 1px solid #888;
     width: 80%; /* Could be more or less, depending on screen size */
+    border-radius: 12px;
+  }
+
+  .modal-content form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .modal-content input {
+    width: 40%;  
+    display: block;
+    padding: 8px 16px;
+    font-size: 1rem;
+    border-radius: 4px;
+    border: 2 solid grey;  
+  }
+
+  .modal-content button {
+    display: block;
+    margin: 6px auto;
+    padding: 8px 16px;
+    font-size: 1.2rem;
+    background-color: orange;
+    border-radius: 4px;
+    border: none;
   }
   
   /* The Close Button */
@@ -297,6 +323,10 @@ body {
     float: right;
     font-size: 28px;
     font-weight: bold;
+    padding: 2px 6px;
+    background-color: red;
+    margin-left: 12px;
+    border-radius: 4px;
   }
   
   .close:hover,

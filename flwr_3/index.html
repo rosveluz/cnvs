@@ -30,12 +30,12 @@
         <!-- Login Modal (hidden by default) -->
         <div id="login-container" class="modal">
             <div class="modal-content">
-            <span class="close">&times;</span>
-            <form id="login-form">
-                <input type="email" id="email" autocomplete="email">
-                <input type="password" id="password" autocomplete="current-password">
-                <button type="submit" id="login">Login</button>
-            </form>
+                <span class="close">&times;</span>
+                <form id="login-form">
+                    <input type="email" placeholder="Email Address" id="email" autocomplete="email">
+                    <input type="password" placeholder="Password" id="password" autocomplete="current-password">
+                    <button type="submit" id="login">Login</button>
+                </form>
             </div>
         </div>
   
@@ -98,7 +98,7 @@
         });
     </script>
 
-    <script type="module">
+    <!-- <script type="module">
         import { saveImageAndEmail } from './send.js';
         
         const printButton = document.getElementById('printButton');
@@ -130,7 +130,7 @@
             console.error('An error occurred while sending the image:', error);
         }
         }, { once: true }); // Use the { once: true } option to listen only once
-    </script>
+    </script> -->
     
     <script>
         const counterButton = document.getElementById('counterButton');
@@ -138,16 +138,24 @@
         const printButton = document.getElementById('printButton');
     
         counterButton.addEventListener('click', function() {
+        setupCaptureTimer();
         // Reset the email form
         emailForm.reset();
     
         // Restore the default button text
         printButton.textContent = 'Send Generated Flower';
-    
-        // Add any other code to start a new session or capture an image
+
         });
     </script>
-  
+    
+    <script>
+        // Define this outside of any repeatable function to avoid multiple bindings
+        window.onclick = function(event) {
+            if (event.target === modal) {
+                modal.style.display = "none";
+            }
+        };
+    </script>
   
 </body>
 </html>

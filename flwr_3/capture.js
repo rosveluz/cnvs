@@ -34,18 +34,22 @@ async function captureCanvasAndBackground() {
 function setupCaptureTimer() {
     const timerDiv = document.getElementById('timer');
     const buttonText = document.getElementById('button-text');
-    let counter = 3;  // 5 seconds
+    let counter = 5;  // 5 seconds
 
-    const interval = setInterval(() => {
+    // Temporarily clear the button text while the timer is running
+    buttonText.textContent = '';
+
+    const interval = setInterval(async () => { // make this async to allow await inside
         if (counter <= 0) {
             clearInterval(interval);
-            captureCanvasAndBackground();
-            timerDiv.textContent = '';
-            buttonText.textContent = 'Capture Timer';
+            buttonText.textContent = 'Capture Timer'; // Reset to original text
+            timerDiv.textContent = ''; // Clear the timer display
+            await captureCanvasAndBackground(); // this will display the modal
             return;
         }
 
-        timerDiv.textContent = counter;
+        // Display the counter in the timerDiv, effectively replacing the buttonText
+        timerDiv.textContent = `Capture in ${counter}...`;
         counter--;
     }, 1000);
 }
@@ -64,19 +68,26 @@ window.onclick = function(event) {
 document.getElementById('printButton').addEventListener('click', async () => {
     const emailAddress = document.getElementById('emailAddress').value;
     const finalImage = modalImage.src; // Assuming modalImage.src is the data URL of the image
-  
+
     // Use the imported `auth` instead of calling `getAuth()`
     if (!auth.currentUser) {
-      console.error("No user is signed in.");
-      // Maybe show a login prompt or error message to the user
-      return;
+        console.error("No user is signed in.");
+        // Maybe show a login prompt or error message to the user
+        return;
+    }
+
+    // Prevent double submission
+    if (printButton.textContent.includes('Sent')) {
+        console.log('Image already sent.');
+        return;
     }
 
     try {
-      await saveImageAndEmail(finalImage, emailAddress);
-      // Handle successful save, maybe close the modal or show a message
+        await saveImageAndEmail(finalImage, emailAddress);
+        // Handle successful save, maybe close the modal or show a message
+        printButton.textContent = 'Image Sent'; // Update button text
     } catch (error) {
-      console.error("An error occurred while saving the image and email: ", error);
-      // Show an error message to the user
+        console.error("An error occurred while saving the image and email: ", error);
+        // Show an error message to the user
     }
 });
