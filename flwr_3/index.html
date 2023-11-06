@@ -1,21 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bad Flowers [Coconut Studios x &lt;cnvs&gt;] </title>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Bad Flowers [Coconut Studios x <cnvs>]</title>
+        
+        <link rel="icon" href="img/SVG/cnvs-logomark-blk.svg" type="image/png">
+        <link rel="stylesheet" href="style.css">
     
-    <link rel="icon" href="img/SVG/cnvs-logomark-blk.svg" type="image/png">
-    <link rel="stylesheet" href="style.css">
+        <script src="https://cdn.jsdelivr.net/npm/simple-statistics@7.7.5/dist/simple-statistics.min.js"></script>
+        <script defer src="./face-api.js-master/dist/face-api.min.js"></script>
+        
+        <script type="module" src="./firebase-config.js"></script>
 
-    <script src="https://cdn.jsdelivr.net/npm/simple-statistics@7.7.5/dist/simple-statistics.min.js"></script>
-    <script defer src="./face-api.js-master/dist/face-api.min.js"></script>
-    <!-- Make sure to declare script.js as a module because it's importing from utils.js -->
-    <script type="module" src="./script.js"></script>
-    <script type="module" src="./flower.js"></script>
-    <script type="module" src="./capture.js"></script>
-     <!-- <script type="module" src="./send.js"></script> -->
-</head>
+        <script type="module" src="./script.js"></script>
+        <script type="module" src="./flower.js"></script>
+        <script type="module" src="./capture.js"></script>
+        <script type="module" src="./send.js"></script>
+        <script type="module" src="./auth.js"></script>
+    </head>
+    
     
 <body>
     <section class="main-container">
@@ -23,6 +27,18 @@
             <img class="logo-1" src="img/cnvs-logomark-wht.svg" alt="<cnvs> logo">
         </div>
 
+        <!-- Login Modal (hidden by default) -->
+        <div id="login-container" class="modal">
+            <div class="modal-content">
+            <span class="close">&times;</span>
+            <form id="login-form">
+                <input type="email" id="email" autocomplete="email">
+                <input type="password" id="password" autocomplete="current-password">
+                <button type="submit" id="login">Login</button>
+            </form>
+            </div>
+        </div>
+  
         <div class="canvas-container">
 
             <div id="video-container">
@@ -74,5 +90,64 @@
         });
     </script>
 
+
+    <script>
+        document.querySelector('.logo-1').addEventListener('click', function() {
+            var loginContainer = document.getElementById('login-container');
+            loginContainer.style.display = loginContainer.style.display === "none" ? "block" : "none";
+        });
+    </script>
+
+    <script type="module">
+        import { saveImageAndEmail } from './send.js';
+        
+        const printButton = document.getElementById('printButton');
+        
+        printButton.addEventListener('click', async function handlePrintButtonClick(event) {
+        // Prevent the default behavior of the button
+        event.preventDefault();
+    
+        // Example of retrieving image data URL, replace with your actual code
+        const imageDataUrl = document.getElementById('modalImage').src;
+        const email = document.getElementById('emailAddress').value;
+    
+        if (printButton.textContent === 'Image Sent') {
+            console.log('Image already sent.');
+            return; // Prevent sending the image again
+        }
+    
+        try {
+            // Since saveImageAndEmail is an async function, we need to await it
+            const success = await saveImageAndEmail(imageDataUrl, email);
+            
+            if (success) {
+            printButton.textContent = 'Image Sent'; // Updates the button text
+            } else {
+            console.error('Failed to send the image.');
+            // Handle the failure case, show a message to the user or log it
+            }
+        } catch (error) {
+            console.error('An error occurred while sending the image:', error);
+        }
+        }, { once: true }); // Use the { once: true } option to listen only once
+    </script>
+    
+    <script>
+        const counterButton = document.getElementById('counterButton');
+        const emailForm = document.getElementById('emailForm');
+        const printButton = document.getElementById('printButton');
+    
+        counterButton.addEventListener('click', function() {
+        // Reset the email form
+        emailForm.reset();
+    
+        // Restore the default button text
+        printButton.textContent = 'Send Generated Flower';
+    
+        // Add any other code to start a new session or capture an image
+        });
+    </script>
+  
+  
 </body>
 </html>

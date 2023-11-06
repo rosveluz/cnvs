@@ -72,7 +72,7 @@ function getLineWidth(expression) {
         case 'sad':
         case 'angry':
         case 'disgusted':
-            return Math.floor(Math.random() * (32 - 17 + 1)) + 17; // Random between 17 and 32
+            return Math.floor(Math.random() * (32 - 28 + 1)) + 28; // Random between 17 and 32
         case 'neutral':
             return Math.floor(Math.random() * (16 - 10 + 1)) + 10; // Random between 10 and 16
         case 'happy':

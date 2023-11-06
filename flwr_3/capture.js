@@ -1,5 +1,8 @@
 /* capture.js */
 
+import { auth } from './auth.js';
+import { saveImageAndEmail } from './send.js';
+
 const modal = document.getElementById("imageModal");
 const modalImage = document.getElementById("modalImage");
 
@@ -31,7 +34,7 @@ async function captureCanvasAndBackground() {
 function setupCaptureTimer() {
     const timerDiv = document.getElementById('timer');
     const buttonText = document.getElementById('button-text');
-    let counter = 5;  // 5 seconds
+    let counter = 3;  // 5 seconds
 
     const interval = setInterval(() => {
         if (counter <= 0) {
@@ -57,3 +60,23 @@ window.onclick = function(event) {
         modal.style.display = "none";
     }
 };
+
+document.getElementById('printButton').addEventListener('click', async () => {
+    const emailAddress = document.getElementById('emailAddress').value;
+    const finalImage = modalImage.src; // Assuming modalImage.src is the data URL of the image
+  
+    // Use the imported `auth` instead of calling `getAuth()`
+    if (!auth.currentUser) {
+      console.error("No user is signed in.");
+      // Maybe show a login prompt or error message to the user
+      return;
+    }
+
+    try {
+      await saveImageAndEmail(finalImage, emailAddress);
+      // Handle successful save, maybe close the modal or show a message
+    } catch (error) {
+      console.error("An error occurred while saving the image and email: ", error);
+      // Show an error message to the user
+    }
+});
