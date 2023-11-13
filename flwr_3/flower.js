@@ -28,8 +28,8 @@ const GLOBAL_DELAY = 500;  // Delay in milliseconds (e.g., 500ms or 0.5 seconds)
 import { getAverageColor } from './utils.js';
 
 let previousExpression = null;
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+canvas.width = 400;
+canvas.height = 400;
 
 let avgColor;
 let animationStarted = false;

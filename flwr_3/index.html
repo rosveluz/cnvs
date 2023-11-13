@@ -98,40 +98,6 @@
         });
     </script>
 
-    <!-- <script type="module">
-        import { saveImageAndEmail } from './send.js';
-        
-        const printButton = document.getElementById('printButton');
-        
-        printButton.addEventListener('click', async function handlePrintButtonClick(event) {
-        // Prevent the default behavior of the button
-        event.preventDefault();
-    
-        // Example of retrieving image data URL, replace with your actual code
-        const imageDataUrl = document.getElementById('modalImage').src;
-        const email = document.getElementById('emailAddress').value;
-    
-        if (printButton.textContent === 'Image Sent') {
-            console.log('Image already sent.');
-            return; // Prevent sending the image again
-        }
-    
-        try {
-            // Since saveImageAndEmail is an async function, we need to await it
-            const success = await saveImageAndEmail(imageDataUrl, email);
-            
-            if (success) {
-            printButton.textContent = 'Image Sent'; // Updates the button text
-            } else {
-            console.error('Failed to send the image.');
-            // Handle the failure case, show a message to the user or log it
-            }
-        } catch (error) {
-            console.error('An error occurred while sending the image:', error);
-        }
-        }, { once: true }); // Use the { once: true } option to listen only once
-    </script> -->
-    
     <script>
         const counterButton = document.getElementById('counterButton');
         const emailForm = document.getElementById('emailForm');
@@ -156,6 +122,6 @@
             }
         };
     </script>
-  
+    
 </body>
 </html>
