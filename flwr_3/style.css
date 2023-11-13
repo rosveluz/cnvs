@@ -296,6 +296,8 @@ body {
     display: flex;
     flex-direction: column;
     gap: 12px;
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
   }
 
   .modal-content input {
