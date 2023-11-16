@@ -1,10 +1,27 @@
-/* capture.js */
+// capture.js
 
 import { auth } from './auth.js';
 import { saveImageAndEmail } from './send.js';
 
 const modal = document.getElementById("imageModal");
 const modalImage = document.getElementById("modalImage");
+const emailForm = document.getElementById('emailForm');
+const printButton = document.getElementById('printButton');
+const timerDiv = document.getElementById('timer');
+const buttonText = document.getElementById('button-text');
+
+// Function to reset UI elements for a new session
+function resetSession() {
+    // Reset the email form fields
+    emailForm.reset();
+
+    // Reset the button text
+    printButton.textContent = 'Send Generated Flower';
+    printButton.disabled = false; // Re-enable the button if it was disabled
+
+    // Close the modal
+    modal.style.display = 'none';
+}
 
 // Part 1: Capture the canvas and background
 async function captureCanvasAndBackground() {
@@ -27,67 +44,67 @@ async function captureCanvasAndBackground() {
     
     // Set the captured image source to the modal and show the modal
     modalImage.src = finalImage;
-    modal.style.display = "flex";  // This line will trigger the modal to show up
+    modal.style.display = "flex";
 }
 
 // Part 2: Set up the countdown timer and capture functionality
 function setupCaptureTimer() {
-    const timerDiv = document.getElementById('timer');
-    const buttonText = document.getElementById('button-text');
-    let counter = 5;  // 5 seconds
+    let counter = 5; // 5 seconds countdown
 
     // Temporarily clear the button text while the timer is running
     buttonText.textContent = '';
 
-    const interval = setInterval(async () => { // make this async to allow await inside
+    const interval = setInterval(async () => {
         if (counter <= 0) {
             clearInterval(interval);
             buttonText.textContent = 'Capture Timer'; // Reset to original text
             timerDiv.textContent = ''; // Clear the timer display
-            await captureCanvasAndBackground(); // this will display the modal
+            await captureCanvasAndBackground(); // Display the modal with the image
             return;
         }
 
-        // Display the counter in the timerDiv, effectively replacing the buttonText
+        // Update the timer display
         timerDiv.textContent = `Capture in ${counter}...`;
         counter--;
     }, 1000);
 }
 
-document.getElementById('counterButton').addEventListener('click', () => {
-    setupCaptureTimer();
-});
+// Event listeners
+document.getElementById('counterButton').addEventListener('click', setupCaptureTimer);
 
-// Close the modal if clicked outside the content
 window.onclick = function(event) {
     if (event.target === modal) {
         modal.style.display = "none";
     }
 };
 
-document.getElementById('printButton').addEventListener('click', async () => {
-    const emailAddress = document.getElementById('emailAddress').value;
-    const finalImage = modalImage.src; // Assuming modalImage.src is the data URL of the image
+printButton.addEventListener('click', async () => {
+    const emailAddress = emailForm.email.value;
+    const finalImage = modalImage.src;
 
-    // Use the imported `auth` instead of calling `getAuth()`
+    // Check if a user is signed in
     if (!auth.currentUser) {
         console.error("No user is signed in.");
-        // Maybe show a login prompt or error message to the user
         return;
     }
 
     // Prevent double submission
-    if (printButton.textContent.includes('Sent')) {
-        console.log('Image already sent.');
+    if (printButton.disabled) {
         return;
     }
 
+    // Disable the button to prevent multiple sends
+    printButton.disabled = true;
+    printButton.textContent = 'Sending...';
+
     try {
         await saveImageAndEmail(finalImage, emailAddress);
-        // Handle successful save, maybe close the modal or show a message
-        printButton.textContent = 'Image Sent'; // Update button text
+        // Indicate to the user that the image was sent
+        printButton.textContent = 'Image Sent';
+        // Reset session after a short delay
+        setTimeout(resetSession, 2000);
     } catch (error) {
-        console.error("An error occurred while saving the image and email: ", error);
-        // Show an error message to the user
+        console.error("Error sending email: ", error);
+        resetSession();
     }
 });

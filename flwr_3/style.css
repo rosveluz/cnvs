@@ -234,8 +234,9 @@ body {
 #captured-image img {
     display: block;
     margin: 0 auto;
-    width: 720px;
-    height: 720px;
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
 }
 
 #printButton {
@@ -338,3 +339,44 @@ body {
     cursor: pointer;
   }
   
+/* Media query for iPad Pro 3 (1668x2388) and iPad Air 4 (1640x2360) in portrait orientation */
+@media only screen 
+  and (min-device-width : 1640px) 
+  and (max-device-width : 1668px) 
+  and (min-device-height : 2360px) 
+  and (max-device-height : 2388px) 
+  and (orientation : portrait) {
+
+  .main-container {
+    height: 100dvh; /* Full height of the viewport */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  /* Ensuring img elements retain their current sizes */
+  .main-container .logo-1, .main-container .logo-2 {
+    height: auto; /* Height is automatic to maintain aspect ratio */
+  }
+
+  /* Scaling elements within .canvas-container proportionally */
+  .canvas-container {
+    width: 100%; /* Full width of the main-container */
+    height: calc(100vh - 144px); /* Subtracting the top and bottom padding of main-container */
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Center children vertically */
+    align-items: center; /* Center children horizontally */
+  }
+
+  .canvas-container > * {
+    max-width: 100%; /* Max width is 100% of .canvas-container */
+    max-height: 100%; /* Max height is 100% of .canvas-container */
+    object-fit: contain; /* Scale the content to fit the space while preserving aspect ratio */
+  }
+
+  #myCanvas {
+    height: 1200px;
+    width: 1200px;
+  }
+}
